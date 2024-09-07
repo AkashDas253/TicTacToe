@@ -1,3 +1,4 @@
+// Initial state
 let board = [];
 let currentPlayer = 'X';
 let gameActive = true;
@@ -5,6 +6,7 @@ let selectedBot = null;
 let gridSize = 3;
 let gameType = '1v1';
 let firstPlayer = 'player';
+let bot = null; // Variable to hold the bot instance
 
 // Avoid multiple event listeners by disabling the board after a move is made
 let boardDisabled = false;
@@ -41,6 +43,17 @@ function startGame() {
         boardDiv.appendChild(cell);
     }
 
+    // Initialize bot if needed
+    if (gameType === '1vBot') {
+        if (selectedBot === 'easyBot') {
+            bot = new EasyBot(board, 'X', 'O', firstPlayer);
+        } else if (selectedBot === 'minimaxBot') {
+            bot = new MinimaxBot(board, 'X', 'O', firstPlayer);
+        } else if (selectedBot === 'alphaBetaBot') {
+            bot = new AlphaBetaBot(board, 'X', 'O', firstPlayer);
+        }
+    }
+
     // Show game board, hide config
     document.getElementById('config').style.display = 'none';
     document.getElementById('game').style.display = 'block';
@@ -54,54 +67,66 @@ function makeMove(index) {
     if (!boardDisabled && board[index] === '' && gameActive) {
         board[index] = currentPlayer;
         document.querySelector(`.cell[data-index='${index}']`).textContent = currentPlayer;
-        checkWin();
-        if (gameActive && gameType === '1vBot') {
+
+        // Check for a win after a short delay to allow UI update
+        setTimeout(() => {
+            if (checkWin()) {
+                gameActive = false;
+                alert(`Player ${currentPlayer} wins!`);
+                return;
+            }
+
+            if (!board.includes('')) {
+                gameActive = false;
+                alert('It\'s a tie!');
+                return;
+            }
+
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Switch player after the move
-            boardDisabled = true;
-            setTimeout(botMove, 500); // Short delay before bot moves
-        } else {
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Switch player after the move
-        }
+
+            if (gameType === '1vBot' && currentPlayer === bot.botSymbol) {
+                boardDisabled = true;
+                setTimeout(botMove, 500); // Short delay before bot moves
+            }
+        }, 100); // Short delay to allow the symbol to be shown
     }
 }
 
 function botMove() {
-    let botSymbol = currentPlayer; // Bot should play with the current symbol
+    if (bot) {
+        const botMoveIndex = bot.makeMove();
+        board[botMoveIndex] = bot.botSymbol;
+        document.querySelector(`.cell[data-index='${botMoveIndex}']`).textContent = bot.botSymbol;
 
-    if (selectedBot === 'easyBot') {
-        easyBotMove();
-    } else if (selectedBot === 'minimaxBot') {
-        minimaxBotMove();
-    } else if (selectedBot === 'alphaBetaBot') {
-        alphaBetaBotMove();
+        // Check for a win after a short delay to allow UI update
+        setTimeout(() => {
+            if (checkWin()) {
+                gameActive = false;
+                alert(`Player ${bot.botSymbol} wins!`);
+                return;
+            }
+
+            boardDisabled = false;
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Switch back to the player after bot move
+        }, 100); // Short delay to allow the symbol to be shown
     }
-
-    checkWin();
-    boardDisabled = false;
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Switch back to the player after bot move
 }
 
 function checkWin() {
     const winningCombinations = getWinningCombinations(gridSize);
 
     for (const combination of winningCombinations) {
-        const [a, b, c] = combination;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            gameActive = false;
-            alert(`Player ${board[a]} wins!`);
-            return;
+        if (combination.every(index => board[index] === currentPlayer)) {
+            return true;
         }
     }
 
-    if (!board.includes('')) {
-        gameActive = false;
-        alert('It\'s a tie!');
-    }
+    return false;
 }
 
 function getWinningCombinations(size) {
     const combinations = [];
-
+    
     // Rows
     for (let i = 0; i < size; i++) {
         const row = [];
@@ -148,4 +173,20 @@ function newGame() {
     // Reset to the configuration screen
     document.getElementById('config').style.display = 'block';
     document.getElementById('game').style.display = 'none';
+
+    // Reset game variables
+    board = [];
+    currentPlayer = 'X';
+    gameActive = true;
+    boardDisabled = false;
+    selectedBot = null;
+    gridSize = 3;
+    gameType = '1v1';
+    firstPlayer = 'player';
+
+    // Clear the board UI
+    const boardDiv = document.getElementById('board');
+    boardDiv.innerHTML = '';
+    boardDiv.style.gridTemplateColumns = '';
+    boardDiv.style.gridTemplateRows = '';
 }
