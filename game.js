@@ -1,10 +1,11 @@
 class Game {
     constructor() {
         this.board = [];
-        this.currentPlayer = 'X'; // Start with player 'X'
+        this.currentPlayer = 'X';
         this.gameActive = true;
         this.boardDisabled = false;
         this.bot = null;
+        this.firstPlayer = 'player';
         this.gridSize = 3;
     }
 
@@ -15,9 +16,10 @@ class Game {
         this.gridSize = parseInt(document.getElementById('grid-size').value);
         const gameType = document.getElementById('game-type').value;
         const selectedBot = document.getElementById('bot-type').value;
-        const firstPlayer = document.getElementById('first-player').value;
+        this.firstPlayer = document.getElementById('first-player').value;
 
         this.board = Array(this.gridSize * this.gridSize).fill('');
+        this.currentPlayer = this.firstPlayer === 'player' ? 'X' : 'O';
         this.gameActive = true;
         this.boardDisabled = false;
 
@@ -25,13 +27,8 @@ class Game {
 
         if (gameType === '1vBot') {
             this.bot = this.selectBot(selectedBot);
-            if (firstPlayer === 'bot') {
-                // If bot is the first player, it should start with 'X'
-                this.currentPlayer = 'X';
+            if (this.firstPlayer === 'bot') {
                 this.botMove();
-            } else {
-                // If human is the first player, 'X' starts as usual
-                this.currentPlayer = 'X';
             }
         }
     }
@@ -39,7 +36,6 @@ class Game {
     // Reset game-related properties
     resetGameState() {
         this.board = [];
-        // Always start with player 'X'
         this.currentPlayer = 'X';
         this.gameActive = true;
         this.boardDisabled = false;
@@ -66,7 +62,9 @@ class Game {
     selectBot(botType) {
         if (botType === 'easyBot') {
             return new RandomBot('O', this.board);
-        } 
+        } else if (botType === 'minimaxBot') {
+            return new MinimaxBot('O', this.board);
+        }
         // Add other bot types if needed
         return null;
     }
