@@ -66,9 +66,7 @@ class Game {
     selectBot(botType) {
         if (botType === 'easyBot') {
             return new RandomBot('O', this.board);
-        } else if (botType === 'minimaxBot') {
-            return new MinimaxBot('O', this.board);
-        }
+        } 
         // Add other bot types if needed
         return null;
     }
