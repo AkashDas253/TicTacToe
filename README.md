@@ -17,7 +17,7 @@ This is a web-based Tic-Tac-Toe game with various bots implemented using differe
 
 ## Play
 
-[View the live website here](https://akashdas253.github.io/TicTacToe/)
+[Play the game here](https://akashdas253.github.io/TicTacToe/)
 
 ## Usage
 
@@ -46,7 +46,7 @@ Contributions are welcome! Please follow these steps:
 
 1. **Fork the repository.**
 
-2. ** Clone the repository to your local machine**
+2. **Clone the repository to your local machine**
 
     ```bash
     git clone https://github.com/your-username/repository.git
