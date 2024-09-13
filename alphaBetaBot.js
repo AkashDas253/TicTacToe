@@ -1,7 +1,9 @@
 class AlphaBetaBot extends Player {
-    constructor(symbol, gameBoard) {
+    constructor(symbol, gameBoard, winLength) {
         super(symbol, gameBoard);
         this.opponentSymbol = symbol === 'X' ? 'O' : 'X';
+        this.boardSize = Math.sqrt(gameBoard.length); // Calculate board size dynamically
+        this.winLength = winLength; // Define how many symbols in a row are needed to win
     }
 
     makeMove() {
@@ -64,17 +66,15 @@ class AlphaBetaBot extends Player {
     }
 
     evaluate(board) {
-        const winPatterns = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-            [0, 4, 8], [2, 4, 6]             // diagonals
-        ];
+        const winPatterns = this.generateWinPatterns();
 
         for (let pattern of winPatterns) {
-            const [a, b, c] = pattern;
-            if (board[a] === board[b] && board[b] === board[c]) {
-                if (board[a] === this.symbol) return 10;
-                else if (board[a] === this.opponentSymbol) return -10;
+            let firstSymbol = board[pattern[0]];
+            if (firstSymbol === '') continue;
+            let won = pattern.every(index => board[index] === firstSymbol);
+            if (won) {
+                if (firstSymbol === this.symbol) return 10;
+                else if (firstSymbol === this.opponentSymbol) return -10;
             }
         }
         return 0;
@@ -82,5 +82,55 @@ class AlphaBetaBot extends Player {
 
     isFull(board) {
         return board.every(cell => cell !== '');
+    }
+
+    generateWinPatterns() {
+        let patterns = [];
+
+        // Rows
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col <= this.boardSize - this.winLength; col++) {
+                let pattern = [];
+                for (let i = 0; i < this.winLength; i++) {
+                    pattern.push(row * this.boardSize + col + i);
+                }
+                patterns.push(pattern);
+            }
+        }
+
+        // Columns
+        for (let col = 0; col < this.boardSize; col++) {
+            for (let row = 0; row <= this.boardSize - this.winLength; row++) {
+                let pattern = [];
+                for (let i = 0; i < this.winLength; i++) {
+                    pattern.push((row + i) * this.boardSize + col);
+                }
+                patterns.push(pattern);
+            }
+        }
+
+        // Diagonals (top-left to bottom-right)
+        for (let row = 0; row <= this.boardSize - this.winLength; row++) {
+            for (let col = 0; col <= this.boardSize - this.winLength; col++) {
+                let pattern = [];
+                for (let i = 0; i < this.winLength; i++) {
+                    pattern.push((row + i) * this.boardSize + col + i);
+                }
+                patterns.push(pattern);
+            }
+        }
+
+        // Diagonals (bottom-left to top-right)
+        for (let row = this.winLength - 1; row < this.boardSize; row++) {
+            for (let col = 0; col <= this.boardSize - this.winLength; col++) {
+                let pattern = [];
+                for (let i = 0; i < this.winLength; i++) {
+                    pattern.push((row - i) * this.boardSize + col + i);
+                }
+                patterns.push(pattern);
+            }
+        }
+
+        return patterns;
     }
 }
