@@ -64,6 +64,8 @@ class Game {
             return new RandomBot('O', this.board);
         } else if (botType === 'minimaxBot') {
             return new MinimaxBot('O', this.board);
+        } else if (botType === 'alphaBetaBot') {
+            return new MinimaxBot('O', this.board);
         }
         // Add other bot types if needed
         return null;

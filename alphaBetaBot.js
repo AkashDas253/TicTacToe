@@ -1,47 +1,86 @@
-function alphaBetaBotMove() {
-    const bestMove = alphaBeta(board, 0, -Infinity, Infinity, true);
-    board[bestMove.index] = currentPlayer;
-    document.querySelectorAll('.cell')[bestMove.index].textContent = currentPlayer;
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-}
+class AlphaBetaPlayer extends Player {
+    constructor(symbol, gameBoard) {
+        super(symbol, gameBoard);
+        this.opponentSymbol = symbol === 'X' ? 'O' : 'X';
+    }
 
-function alphaBeta(newBoard, depth, alpha, beta, maximizingPlayer) {
-    const availSpots = newBoard.map((cell, index) => (cell === '' ? index : null)).filter(index => index !== null);
+    makeMove() {
+        let bestMove = this.findBestMove();
+        this.updateBoard(bestMove, this.symbol);
+        return bestMove;
+    }
 
-    // Check for terminal states (win/tie)
-    if (checkWinForMinimax(newBoard, 'X')) return { score: -10 + depth };
-    if (checkWinForMinimax(newBoard, 'O')) return { score: 10 - depth };
-    if (availSpots.length === 0) return { score: 0 };
+    findBestMove() {
+        let bestVal = -Infinity;
+        let bestMove = -1;
 
-    if (maximizingPlayer) {
-        let maxEval = -Infinity;
-        let bestMove;
-        for (let i = 0; i < availSpots.length; i++) {
-            newBoard[availSpots[i]] = 'O';
-            const eval = alphaBeta(newBoard, depth + 1, alpha, beta, false).score;
-            newBoard[availSpots[i]] = '';
-            if (eval > maxEval) {
-                maxEval = eval;
-                bestMove = availSpots[i];
+        for (let i = 0; i < this.gameBoard.length; i++) {
+            if (this.gameBoard[i] === '') {
+                this.gameBoard[i] = this.symbol;
+                let moveVal = this.minimax(this.gameBoard, 0, -Infinity, Infinity, false);
+                this.gameBoard[i] = '';
+                
+                if (moveVal > bestVal) {
+                    bestMove = i;
+                    bestVal = moveVal;
+                }
             }
-            alpha = Math.max(alpha, eval);
-            if (beta <= alpha) break;
         }
-        return { index: bestMove, score: maxEval };
-    } else {
-        let minEval = Infinity;
-        let bestMove;
-        for (let i = 0; i < availSpots.length; i++) {
-            newBoard[availSpots[i]] = 'X';
-            const eval = alphaBeta(newBoard, depth + 1, alpha, beta, true).score;
-            newBoard[availSpots[i]] = '';
-            if (eval < minEval) {
-                minEval = eval;
-                bestMove = availSpots[i];
+        return bestMove;
+    }
+
+    minimax(board, depth, alpha, beta, isMaximizing) {
+        let score = this.evaluate(board);
+
+        if (score !== 0 || this.isFull(board)) {
+            return score;
+        }
+
+        if (isMaximizing) {
+            let best = -Infinity;
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    board[i] = this.symbol;
+                    best = Math.max(best, this.minimax(board, depth + 1, alpha, beta, false));
+                    board[i] = '';
+                    alpha = Math.max(alpha, best);
+                    if (beta <= alpha) break; // Alpha-beta pruning
+                }
             }
-            beta = Math.min(beta, eval);
-            if (beta <= alpha) break;
+            return best;
+        } else {
+            let best = Infinity;
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    board[i] = this.opponentSymbol;
+                    best = Math.min(best, this.minimax(board, depth + 1, alpha, beta, true));
+                    board[i] = '';
+                    beta = Math.min(beta, best);
+                    if (beta <= alpha) break; // Alpha-beta pruning
+                }
+            }
+            return best;
         }
-        return { index: bestMove, score: minEval };
+    }
+
+    evaluate(board) {
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+            [0, 4, 8], [2, 4, 6]             // diagonals
+        ];
+
+        for (let pattern of winPatterns) {
+            const [a, b, c] = pattern;
+            if (board[a] === board[b] && board[b] === board[c]) {
+                if (board[a] === this.symbol) return 10;
+                else if (board[a] === this.opponentSymbol) return -10;
+            }
+        }
+        return 0;
+    }
+
+    isFull(board) {
+        return board.every(cell => cell !== '');
     }
 }
