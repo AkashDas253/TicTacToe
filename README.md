@@ -15,39 +15,9 @@ This is a web-based Tic-Tac-Toe game with various bots implemented using differe
 - **Bot Selection**: Choose between different types of bots.
 - **First Player Selection**: Choose whether the player or the bot goes first.
 
-## Getting Started
+## Play
 
-### Prerequisites
-
-- Modern web browser (Chrome, Firefox, etc.)
-- [Node.js](https://nodejs.org/) (for running the Minimax tree generator and tests)
-
-### Setup
-
-1. **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/yourusername/tic-tac-toe.git
-    cd tic-tac-toe
-    ```
-
-2. **Install dependencies:**
-
-    No dependencies are required for running the front-end. For generating the Minimax tree, you will need Node.js.
-
-3. **Generate Minimax Tree:**
-
-    Navigate to the directory where `minimaxTreeGenerator.js` is located and run:
-
-    ```bash
-    node minimaxTreeGenerator.js
-    ```
-
-    This will generate a file named `minimaxTree_3.json` with the Minimax tree for a 3x3 board.
-
-4. **Open the Game:**
-
-    Open `index.html` in a web browser to play the game.
+[View the live website here](https://akashdas253.github.io/TicTacToe/)
 
 ## Usage
 
@@ -75,6 +45,13 @@ This is a web-based Tic-Tac-Toe game with various bots implemented using differe
 Contributions are welcome! Please follow these steps:
 
 1. **Fork the repository.**
+
+2. ** Clone the repository to your local machine**
+
+    ```bash
+    git clone https://github.com/your-username/repository.git
+    ```
+
 2. **Create a new branch:**
 
     ```bash
@@ -95,13 +72,8 @@ Contributions are welcome! Please follow these steps:
 
 5. **Create a new Pull Request.**
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgements
 
 - [Minimax Algorithm](https://en.wikipedia.org/wiki/Minimax)
 - [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning)
-- [Open Source Libraries](https://opensource.com/resources)
 
