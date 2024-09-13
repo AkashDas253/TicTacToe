@@ -1,9 +1,8 @@
 class MinimaxBot extends Player {
-    constructor(symbol, gameBoard, winLength) {
+    constructor(symbol, gameBoard) {
         super(symbol, gameBoard);
         this.opponentSymbol = symbol === 'X' ? 'O' : 'X';
-        this.boardSize = Math.sqrt(gameBoard.length); // Calculate board size dynamically
-        this.winLength = winLength; // Define how many symbols in a row are needed to win
+        this.boardSize = Math.sqrt(gameBoard.length);
     }
 
     makeMove() {
@@ -62,7 +61,49 @@ class MinimaxBot extends Player {
     }
 
     evaluate(board) {
-        const winPatterns = this.generateWinPatterns();
+        if (this.boardSize === 3) {
+            return this.evaluate3x3(board);
+        } else if (this.boardSize === 5) {
+            return this.evaluate5x5(board);
+        }
+        return 0; // Default for unsupported board sizes
+    }
+
+    evaluate3x3(board) {
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6] // Diagonals
+        ];
+
+        for (let pattern of winPatterns) {
+            let firstSymbol = board[pattern[0]];
+            if (firstSymbol === '') continue;
+            let won = pattern.every(index => board[index] === firstSymbol);
+            if (won) {
+                if (firstSymbol === this.symbol) return 10;
+                else if (firstSymbol === this.opponentSymbol) return -10;
+            }
+        }
+        return 0;
+    }
+
+    evaluate5x5(board) {
+        const winPatterns = [
+            // Rows
+            [0, 1, 2, 3], [1, 2, 3, 4], [5, 6, 7, 8], [6, 7, 8, 9],
+            [10, 11, 12, 13], [11, 12, 13, 14], [15, 16, 17, 18], [16, 17, 18, 19],
+            [20, 21, 22, 23], [21, 22, 23, 24],
+
+            // Columns
+            [0, 5, 10, 15], [1, 6, 11, 16], [2, 7, 12, 17], [3, 8, 13, 18],
+            [4, 9, 14, 19], [5, 10, 15, 20], [6, 11, 16, 21], [7, 12, 17, 22],
+            [8, 13, 18, 23], [9, 14, 19, 24],
+
+            // Diagonals
+            [0, 6, 12, 18], [1, 7, 13, 19], [5, 11, 17, 23], [6, 12, 18, 24],
+            [3, 7, 11, 15], [4, 8, 12, 16], [8, 12, 16, 20], [9, 13, 17, 21]
+        ];
 
         for (let pattern of winPatterns) {
             let firstSymbol = board[pattern[0]];
@@ -78,55 +119,5 @@ class MinimaxBot extends Player {
 
     isFull(board) {
         return board.every(cell => cell !== '');
-    }
-
-    generateWinPatterns() {
-        let patterns = [];
-
-        // Rows
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col <= this.boardSize - this.winLength; col++) {
-                let pattern = [];
-                for (let i = 0; i < this.winLength; i++) {
-                    pattern.push(row * this.boardSize + col + i);
-                }
-                patterns.push(pattern);
-            }
-        }
-
-        // Columns
-        for (let col = 0; col < this.boardSize; col++) {
-            for (let row = 0; row <= this.boardSize - this.winLength; row++) {
-                let pattern = [];
-                for (let i = 0; i < this.winLength; i++) {
-                    pattern.push((row + i) * this.boardSize + col);
-                }
-                patterns.push(pattern);
-            }
-        }
-
-        // Diagonals (top-left to bottom-right)
-        for (let row = 0; row <= this.boardSize - this.winLength; row++) {
-            for (let col = 0; col <= this.boardSize - this.winLength; col++) {
-                let pattern = [];
-                for (let i = 0; i < this.winLength; i++) {
-                    pattern.push((row + i) * this.boardSize + col + i);
-                }
-                patterns.push(pattern);
-            }
-        }
-
-        // Diagonals (bottom-left to top-right)
-        for (let row = this.winLength - 1; row < this.boardSize; row++) {
-            for (let col = 0; col <= this.boardSize - this.winLength; col++) {
-                let pattern = [];
-                for (let i = 0; i < this.winLength; i++) {
-                    pattern.push((row - i) * this.boardSize + col + i);
-                }
-                patterns.push(pattern);
-            }
-        }
-
-        return patterns;
     }
 }
