@@ -1,4 +1,4 @@
-class AlphaBetaPlayer extends Player {
+class AlphaBetaBot extends Player {
     constructor(symbol, gameBoard) {
         super(symbol, gameBoard);
         this.opponentSymbol = symbol === 'X' ? 'O' : 'X';
